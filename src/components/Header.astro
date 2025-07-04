@@ -1,0 +1,87 @@
+---
+// Override del Header de Starlight para incluir autenticación
+import type { Props } from "@astrojs/starlight/props";
+import Default from "@astrojs/starlight/components/Header.astro";
+import { UserButton, SignedIn, SignedOut } from "@clerk/astro/components";
+---
+
+<!-- Header personalizado con autenticación -->
+<div class="header-wrapper">
+    <!-- Header original de Starlight -->
+    <Default {...Astro.props}>
+        <!-- Slot para contenido adicional en el header -->
+        <div slot="end" class="auth-section">
+            <!-- Solo mostrar cuando el usuario está autenticado -->
+            <SignedIn>
+                <div class="user-info">
+                    <span class="welcome-text">Bienvenido</span>
+                    <!-- <UserButton
+                        appearance={{
+                            elements: {
+                                userButtonAvatarBox: "w-8 h-8",
+                                userButtonPopoverCard: "shadow-lg",
+                            },
+                        }}
+                    /> -->
+                </div>
+            </SignedIn>
+
+            <!-- Si no está autenticado, no mostrar nada (el middleware redirigirá) -->
+            <SignedOut>
+                <div class="auth-loading">
+                    <span>Verificando autenticación...</span>
+                </div>
+            </SignedOut>
+        </div>
+    </Default>
+</div>
+
+<style>
+    .header-wrapper {
+        position: relative;
+    }
+
+    .auth-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-left: auto;
+        padding: 0.5rem;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .welcome-text {
+        font-size: 0.9rem;
+        color: var(--sl-color-text);
+        font-weight: 500;
+    }
+
+    .auth-loading {
+        font-size: 0.8rem;
+        color: var(--sl-color-text-accent);
+        opacity: 0.7;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .welcome-text {
+            display: none;
+        }
+
+        .user-info {
+            padding: 0.25rem;
+            background: transparent;
+            border: none;
+        }
+    }
+</style>
