@@ -76,6 +76,7 @@ const rememberMe = !!email;
 
 <script>
     import { actions } from "astro:actions";
+    import Swal from "sweetalert2";
 
     const form = document.querySelector("form") as HTMLFormElement;
     const btnSubmit = document.querySelector(
@@ -92,9 +93,14 @@ const rememberMe = !!email;
         const { data, error } = await actions.loginAction(formData);
 
         if (error) {
-            console.log(error.message);
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: error.message,
+            });
             btnSubmit.removeAttribute("disabled");
             btnSubmit.innerHTML = "Sign in";
         }
+        window.location.replace("/version");
     });
 </script>
