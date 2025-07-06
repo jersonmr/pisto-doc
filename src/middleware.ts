@@ -1,41 +1,33 @@
-// import type { MiddlewareNext } from "astro";
-// import { defineMiddleware } from "astro:middleware";
+import { defineMiddleware } from "astro:middleware";
+import { firebase } from "./firebase/config";
 
-// const publicRoutes = ["/login", "/"];
+const publicRoutes = ["/login", "/", "/_actions/"];
 
-// export const onRequest = defineMiddleware((context, next) => {
-//     const { url } = context;
-//     const isPublicRoute = publicRoutes.includes(url.pathname);
+export const onRequest = defineMiddleware((context, next) => {
+    const { url, locals, redirect } = context;
+    if (url.pathname.startsWith("/_actions/")) {
+        return next();
+    }
 
-//     const authHeader = context.request.headers.get("Authorization") || "";
+    const isPublicRoute = publicRoutes.includes(url.pathname);
 
-//     if (!isPublicRoute) {
-//         return checkLocalAuth(authHeader, next);
-//     }
+    const isLoggedIn = !!firebase.auth.currentUser;
+    const user = firebase.auth.currentUser;
 
-//     return next();
-// });
+    if (!isLoggedIn && url.pathname === "/") {
+        return redirect("/login");
+    }
 
-// const checkLocalAuth = (authHeaders: string, next: MiddlewareNext) => {
-//     if (!authHeaders.startsWith("Basic ")) {
-//         return createUnauthorizedResponse();
-//     }
+    locals.isLoggedIn = isLoggedIn;
+    locals.user = user;
 
-//     const auth = Buffer.from(authHeaders.split(" ")[1], "base64").toString();
-//     const [username, password] = auth.split(":");
+    if (!isPublicRoute && !isLoggedIn) {
+        return redirect("/login");
+    }
 
-//     if (username === "pisto" && password === "Passw0rd#") {
-//         return next();
-//     }
+    if (isPublicRoute && isLoggedIn) {
+        return redirect("/version");
+    }
 
-//     return createUnauthorizedResponse();
-// };
-
-// const createUnauthorizedResponse = () => {
-//     return new Response("Unauthorized", {
-//         status: 401,
-//         headers: {
-//             "WWW-Authenticate": 'Basic real="Secure Area"',
-//         },
-//     });
-// };
+    return next();
+});

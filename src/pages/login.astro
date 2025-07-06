@@ -56,12 +56,22 @@ const rememberMe = !!email;
                         </label>
                     </div>
                 </div>
-                <div>
+                <div class="space-y-2">
                     <button
                         type="submit"
                         class="w-full flex justify-center bg-green-400 hover:bg-green-500 text-gray-100 p-3 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Sign in
+                    </button>
+                    <div class="flex flex-1 w-full my-3">
+                        <div class="w-full border-t-2 border-gray-200"></div>
+                    </div>
+                    <button
+                        type="button"
+                        id="google-login"
+                        class="w-full flex justify-center bg-red-400 hover:bg-red-500 text-gray-100 p-3 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Sign in with Google
                     </button>
                 </div>
             </form>
@@ -75,22 +85,29 @@ const rememberMe = !!email;
 </AuthLayout>
 
 <script>
+    import { firebase } from "@/firebase/config";
     import { actions } from "astro:actions";
+    import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
     import Swal from "sweetalert2";
 
     const form = document.querySelector("form") as HTMLFormElement;
     const btnSubmit = document.querySelector(
         "button[type='submit']"
     ) as HTMLButtonElement;
+    const btnGoogleLogin = document.querySelector(
+        "#google-login"
+    ) as HTMLButtonElement;
 
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(form);
 
+        console.log(formData);
+
         btnSubmit?.setAttribute("disabled", "disabled");
         btnSubmit.innerHTML = "Loading...";
 
-        const { data, error } = await actions.loginAction(formData);
+        const { error } = await actions.loginAction(formData);
 
         if (error) {
             Swal.fire({
@@ -102,5 +119,41 @@ const rememberMe = !!email;
             btnSubmit.innerHTML = "Sign in";
         }
         window.location.replace("/version");
+    });
+
+    btnGoogleLogin?.addEventListener("click", async (e) => {
+        e.preventDefault();
+        btnGoogleLogin?.setAttribute("disabled", "disabled");
+        btnGoogleLogin.innerHTML = "Loading...";
+
+        const provider = new GoogleAuthProvider();
+        const auth = firebase.auth;
+
+        try {
+            //! Paso 1: Obtener las credenciales del lado del cliente
+            const credentials = await signInWithPopup(auth, provider);
+            console.log(credentials);
+
+            //! Paso 2: Enviar las credenciales al servidor
+            const { data, error } =
+                await actions.loginGoogleAction(credentials);
+            if (error) {
+                console.log(error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: error.message,
+                });
+                btnGoogleLogin?.removeAttribute("disabled");
+                btnGoogleLogin.innerHTML = "Sign in with Google";
+                return;
+            }
+            window.location.replace("/version");
+        } catch (error) {
+            console.log(error);
+        } finally {
+            btnGoogleLogin?.removeAttribute("disabled");
+            btnGoogleLogin.innerHTML = "Sign in with Google";
+        }
     });
 </script>

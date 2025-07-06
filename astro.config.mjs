@@ -2,6 +2,7 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
+import node from "@astrojs/node";
 
 // https://astro.build/config
 export default defineConfig({
@@ -23,8 +24,14 @@ export default defineConfig({
             ],
         }),
     ],
+
     vite: {
         // @ts-ignore
         plugins: [tailwindcss()],
     },
+
+    adapter: node({
+        mode: "standalone",
+    }),
+    output: "server",
 });
