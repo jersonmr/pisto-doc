@@ -7,7 +7,6 @@ import node from "@astrojs/node";
 // https://astro.build/config
 export default defineConfig({
     site: "https://docs.pisto.co",
-    trailingSlash: "always",
     integrations: [
         starlight({
             title: "Pisto Docs",
