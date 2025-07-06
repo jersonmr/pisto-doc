@@ -14,9 +14,9 @@ export const onRequest = defineMiddleware((context, next) => {
     const isLoggedIn = !!firebase.auth.currentUser;
     const user = firebase.auth.currentUser;
 
-    if (!isLoggedIn && url.pathname === "/") {
-        return redirect("/login");
-    }
+    // if (!isLoggedIn && url.pathname === "/") {
+    //     return redirect("/login");
+    // }
 
     locals.isLoggedIn = isLoggedIn;
     locals.user = user;
