@@ -2,11 +2,12 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
-import node from "@astrojs/node";
+
+import netlify from "@astrojs/netlify";
 
 // https://astro.build/config
 export default defineConfig({
-    site: "https://docs.pisto.co",
+    // site: "https://docs.pisto.co",
     integrations: [
         starlight({
             title: "Pisto Docs",
@@ -31,8 +32,6 @@ export default defineConfig({
         plugins: [tailwindcss()],
     },
 
-    adapter: node({
-        mode: "standalone",
-    }),
+    adapter: netlify(),
     output: "server",
 });
